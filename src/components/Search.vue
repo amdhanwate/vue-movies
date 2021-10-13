@@ -19,7 +19,7 @@
   <div id="movies" v-else-if="!loadAnimation">
     <NoMoviesFound />
   </div>
-  <div v-if="loadAnimation">
+  <div class="loading" v-if="loadAnimation">
     <Loading />
   </div>
 </template>
@@ -170,6 +170,10 @@ button:active {
   padding: 0.3rem 0.6rem;
   display: block;
   margin: 2rem auto;
+}
+
+.loading {
+  margin: 1rem auto;
 }
 
 @media (max-width: 576px) {
