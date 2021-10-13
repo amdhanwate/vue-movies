@@ -20,6 +20,7 @@ export default {
   methods: {},
   created() {
     console.log(this.$routes);
+    // console.log(this.$props.poster);
   },
 };
 </script>

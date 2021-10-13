@@ -7,50 +7,108 @@
       placeholder="Search your favourite movie.."
       aria-label="search movie"
       v-model="searchTerm"
+      @keyup.enter="searchNewMovie()"
     />
-    <button type="submit" aria-label="movie" @click="searchMovies()">
+    <button type="submit" aria-label="movie" @click="searchNewMovie()">
       Search
     </button>
   </div>
   <div id="movies" v-if="searchResults.length !== 0">
     <Movie :response="searchResults" />
   </div>
-  <div id="movies" v-else>
+  <div id="movies" v-else-if="!loadAnimation">
     <NoMoviesFound />
+  </div>
+  <div v-if="loadAnimation">
+    <Loading />
   </div>
 </template>
 
 <script>
 import Movie from "@/views/Movie.vue";
 import NoMoviesFound from "@/components/NoMoviesFound.vue";
+import Loading from "@/components/Loading.vue";
 
 export default {
   name: "Search",
   components: {
     Movie,
     NoMoviesFound,
+    Loading,
   },
   data() {
+    let currentPage = 1;
+    let totalPages = null;
+    let loadAnimation = false;
     return {
       searchTerm: "",
       searchResults: [],
+      currentPage,
+      totalPages,
+      loadAnimation,
+      Response: true,
+      scrolledToBottom: false,
     };
   },
 
+  mounted() {
+    this.scroll();
+  },
+
   methods: {
-    searchMovies() {
+    searchNewMovie() {
+      let currentPage = (this.currentPage = 1);
+      this.loadAnimation = true;
+      this.searchResults = [];
+
+      this.searchMovies(currentPage);
+    },
+
+    async searchMovies(currentPage) {
       if (this.searchTerm !== "") {
-        return fetch(
-          `http://www.omdbapi.com/?apikey=817080ef&s=${this.searchTerm}`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            this.searchResults = data["Search"];
-            if (this.searchResults == undefined) {
-              this.searchResults = [];
-            }
+        const response = await fetch(
+          `http://www.omdbapi.com/?apikey=817080ef&s=${this.searchTerm}&page=${currentPage}`
+        );
+        const data = await response.json();
+        if (data["Response"] == "True") {
+          this.totalPages = data["totalResults"];
+          data["Search"].map((dt) => {
+            this.searchResults.push(dt);
           });
+        }
+
+        console.log(this.loadAnimation);
+        this.currentPage += 1;
+        if (this.searchResults == undefined) {
+          return;
+        }
       }
+    },
+
+    loadMoreMovies() {
+      if (this.currentPage <= this.totalPages) {
+        console.log("loading next page");
+        this.searchMovies(this.currentPage);
+      }
+    },
+
+    scroll() {
+      window.onscroll = () => {
+        let bottomOfWindow = Math.floor(
+          Math.max(
+            window.pageYOffset,
+            document.documentElement.scrollTop,
+            document.body.scrollTop
+          ) +
+            window.innerHeight -
+            document.documentElement.offsetHeight
+        );
+
+        if (bottomOfWindow > -100) {
+          this.scrolledToBottom = true; // replace it with your code
+          this.loadMoreMovies();
+        }
+      };
     },
   },
 };
@@ -105,6 +163,13 @@ button:active {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.load-more {
+  width: fit-content;
+  padding: 0.3rem 0.6rem;
+  display: block;
+  margin: 2rem auto;
 }
 
 @media (max-width: 576px) {

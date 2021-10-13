@@ -3,6 +3,7 @@ import Home from "../views/Home.vue";
 import NotFound from "../views/NotFound.vue";
 // import Movie from "../views/Movie.vue";
 import MoviePage from "../views/MoviePage.vue";
+import Loading from "../components/Loading.vue";
 
 const routes = [
   {
@@ -14,6 +15,11 @@ const routes = [
     path: "/details/:movieID",
     name: "MoviePage",
     component: MoviePage,
+  },
+  {
+    path: "/loading",
+    name: "Loading",
+    component: Loading,
   },
   {
     path: "/:pathMatch(.*)*", // NEW IN VUE 3
