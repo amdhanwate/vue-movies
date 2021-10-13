@@ -1,4 +1,4 @@
-<template class="con">
+<template class="container">
   <main>
     <div v-if="isDataFetched" class="movie-info">
       <img
@@ -35,20 +35,26 @@
         </p>
       </div>
     </div>
+    <template v-else class="loading">
+      <Loading />
+    </template>
     <div class="plot">{{ movieDetails.Plot }}</div>
   </main>
 </template>
 
 <script>
-import Search from "@/components/Search.vue";
+import Loading from "@/components/Loading.vue";
 
 export default {
   name: "MoviePage",
-  components: [Search],
+  components: {
+    Loading,
+  },
   data() {
     return {
       movieDetails: "",
       isDataFetched: false,
+      isLoading: true,
     };
   },
 
@@ -58,6 +64,7 @@ export default {
     )
       .then((response) => response.json())
       .then((data) => {
+        this.isLoading = false;
         this.movieDetails = data;
         this.isDataFetched = true;
         console.log(this.movieDetails);
